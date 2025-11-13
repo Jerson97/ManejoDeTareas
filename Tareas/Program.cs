@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Tareas.Data;
 
@@ -7,6 +9,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlServer("name=DefaultConnection"));
+
+builder.Services.AddAuthentication();
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(opt =>
+{
+    opt.SignIn.RequireConfirmedAccount = false;
+}).AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme, opt =>
+{
+    opt.LoginPath = "/usuarios/login";
+    opt.AccessDeniedPath = "/usuarios/login";
+});
 
 var app = builder.Build();
 
